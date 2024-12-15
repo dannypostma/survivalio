@@ -225,6 +225,8 @@ export class Player extends GameObject {
 
   addAmmo(gun, amount) {
     this.inventory.items.forEach(item => {
+        console.log(item.name);
+        console.log(gun.name);
         if(item.name === gun.name){
             item.addAmmo(amount);
         }
