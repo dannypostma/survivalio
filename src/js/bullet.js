@@ -16,6 +16,7 @@ class Bullet {
     this.gameState = gameState;
     this.knockbackStrength = 0.5;
     this.gunDamageMultiplier = gunDamageMultiplier;
+    this.speed = 600; // pixels per second
     
     // Bullet is in layer 2 and can collide with layer 3 (hurtboxes)
     this.area = new Area2D(this, [2], [3]);
@@ -25,18 +26,10 @@ class Bullet {
     return this.damage * this.gunDamageMultiplier;
   }
 
-  update() {
-    // Accelerate towards target direction
-    const targetVelocityX = Math.cos(this.angle) * this.maxSpeed;
-    const targetVelocityY = Math.sin(this.angle) * this.maxSpeed;
-
-    // Smoothly interpolate current velocity towards target velocity
-    this.velocity.x += (targetVelocityX - this.velocity.x) * this.acceleration;
-    this.velocity.y += (targetVelocityY - this.velocity.y) * this.acceleration;
-
-    // Update position based on velocity
-    this.position.x += this.velocity.x;
-    this.position.y += this.velocity.y;
+  update(dt) {
+    // Use deltaTime to update position
+    this.position.x += Math.cos(this.angle) * this.speed * dt;
+    this.position.y += Math.sin(this.angle) * this.speed * dt;
 
     // Check for collisions
     this.area.checkOverlap();

@@ -10,6 +10,10 @@ class Item extends GameObject {
     this.area2D = new Area2D(this, ['items'], ['player'], this.size * 1.5, this.size * 1.5);
     this.initialize();
 
+    this.isDisappearable = false;
+    this.disappearTimer = 5000; // 5 seconds countdown
+    this.startDisappearTime = null;
+
     if (gameState) {
       console.log('Registering item as updatable');
       gameState.registerUpdatable(this);
@@ -35,17 +39,42 @@ class Item extends GameObject {
   }
 
   draw(ctx) {
-    ctx.fillStyle = 'blue';
-    ctx.beginPath();
-    ctx.arc(this.position.x, this.position.y, 10, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.save();
+    
+    if (this.isDisappearable && this.startDisappearTime) {
+      const elapsedTime = Date.now() - this.startDisappearTime;
+      const opacity = 1 - (elapsedTime / this.disappearTimer);
+      ctx.globalAlpha = Math.max(0, opacity);
+    }
+    
+    if(this.sprite) { 
+      this.sprite.setPosition(this.position.x - this.sprite.width / 2, this.position.y - this.sprite.height / 2);
+      this.sprite.draw(ctx);
+    } else {
+      ctx.fillStyle = 'blue';
+      ctx.beginPath();
+      ctx.arc(this.position.x, this.position.y, 10, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
-    this.area2D.draw(ctx);
+    ctx.restore();
+    // this.area2D.draw(ctx);
   }
 
   update() {
     if (this.area2D) {
       this.area2D.checkOverlap();
+    }
+
+    if (this.isDisappearable) {
+      if (!this.startDisappearTime) {
+        this.startDisappearTime = Date.now();
+      }
+      
+      const elapsedTime = Date.now() - this.startDisappearTime;
+      if (elapsedTime >= this.disappearTimer) {
+        this.destroy();
+      }
     }
   }
 }

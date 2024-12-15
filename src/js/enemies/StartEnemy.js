@@ -22,7 +22,7 @@ class StartEnemy extends Enemy {
   spawnItem() {
     super.spawnItem();
     const randomNumber = Math.random();
-    if (randomNumber < 0.1) {
+    if (randomNumber < 0.05) {
       // 10% chance to spawn a heart
       new Heart(this.position.x, this.position.y, this.gameState)
     }

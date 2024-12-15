@@ -6,22 +6,26 @@ import { Enemy } from './enemies/enemy.js';
 import { DamageHandler } from './damageHandler.js';
 import { Item } from './item/Item.js';
 import { FastGun } from './guns/FastGun.js';
+import { Inventory } from './inventory.js';
+import { Shotgun } from './guns/Shotgun.js';
 
-class Player extends GameObject {
+export class Player extends GameObject {
   constructor(x, y, gameState) {
     super(x, y);
     this.gameState = gameState;
-    this.gun = new FastGun(this, gameState);
+    this.gun = null
+    this.activeGunSlot = 0
     this.keys = {
       w: false,
       s: false,
       a: false,
-      d: false
+      d: false,
+      ' ': false
     };
     this.bindEvents();
     this.collisionBox = new CollisionBox(this, [1]);
     this.width = 30;
-    this.height = 30;
+    this.height = 30;    
 
     this.name = 'Player';
     
@@ -49,8 +53,7 @@ class Player extends GameObject {
     );
 
     this.strength = 200;
-    this.health = 100;
-    this.initialize();
+    this.health = 100;    
 
     this.touchingEnemies = [];
 
@@ -59,9 +62,16 @@ class Player extends GameObject {
     this.alpha = 1;
     this.normalColor = '#00ff00';
     this.hitColor = '#ff0000';
+
+    this.speed = 300; // pixels per second (instead of pixels per frame)
+
+    this.inventory = new Inventory(this, [new Gun(this, gameState), new FastGun(this, gameState), new Shotgun(this, gameState)], gameState);
+    this.gameState.inventory = this.inventory;
+
+    this.initialize();
   }
 
-  initialize() {
+  initialize() {    
     // Listen for bullets entering the hurtbox
     this.hurtBox.onEnter((obj) => {
       if (obj instanceof Enemy) {
@@ -84,6 +94,8 @@ class Player extends GameObject {
     });
     
     this.updateHealthUI();
+
+    this.gun = this.inventory.items[0];
   }
 
   bindEvents() {
@@ -100,39 +112,48 @@ class Player extends GameObject {
     });
   }
 
-  update() {
+  update(dt) {
+    // Dont allow to go off screen    
+    // Use deltaTime (dt) to calculate movement
+    if (this.keys.w) this.position.y -= this.speed * dt;
+    if (this.keys.s) this.position.y += this.speed * dt;    
 
-    // Store original position
-    const originalX = this.position.x;
-    const originalY = this.position.y;
-
-    // Try moving on Y axis
-    if (this.keys.w) this.position.y -= this.speed;
-    if (this.keys.s) this.position.y += this.speed;    
+    
     
     let collisionY = this.collisionBox.checkForCollision();
     if (collisionY.vertical) {
-      this.position.y = originalY;
+      this.position.y = this.position.y;
     }
 
-    // Try moving on X axis
-    if (this.keys.a) this.position.x -= this.speed;
-    if (this.keys.d) this.position.x += this.speed;
+    if (this.keys.a) this.position.x -= this.speed * dt;
+    if (this.keys.d) this.position.x += this.speed * dt;
     
     let collisionX = this.collisionBox.checkForCollision();
     if (collisionX.horizontal) {
         if(this.keys.d) {
-            this.position.x = originalX;
+            this.position.x = this.position.x;
         }
         if(this.keys.a) {
-            this.position.x = originalX;
+            this.position.x = this.position.x;
         }
     }    
 
+
     if(this.getOutOfBounds()){
-        this.position.x = originalX;
-        this.position.y = originalY;
+        if(this.position.x < 0){
+            this.position.x = 0 + this.width / 2;
+        }
+        if(this.position.x > window.innerWidth){
+            this.position.x = window.innerWidth - this.width / 2;
+        }
+        if(this.position.y < 0){
+            this.position.y = 0 + this.height / 2;
+        }
+        if(this.position.y > window.innerHeight){
+            this.position.y = window.innerHeight - this.height / 2;
+        }
     }
+
 
     this.hurtBox.checkOverlap();
     this.pickupBox.checkOverlap();
@@ -144,6 +165,15 @@ class Player extends GameObject {
     if(this.health <= 0) {
       this.gameState.handleGameOver();
     }
+    
+
+    if(this.keys[' ']) {
+        if(this.gun?.shoot) {
+            this.gun.shoot();
+        }
+    }
+
+
   }
 
   takeDamage(){    
@@ -169,7 +199,7 @@ class Player extends GameObject {
   }
 
   getOutOfBounds(){
-    if(this.position.x < 0 || this.position.x > window.innerWidth || this.position.y < 0 || this.position.y > window.innerHeight){
+    if(this.position.x - this.width / 2 < 0 || this.position.x + this.width / 2 > window.innerWidth || this.position.y - this.height / 2 < 0 || this.position.y + this.height / 2 > window.innerHeight){
       return true;
     }
     return false;
@@ -192,6 +222,12 @@ class Player extends GameObject {
     // Draw pickup box
     // this.pickupBox.draw(ctx);
   }
-}
 
-export { Player }; 
+  addAmmo(gun, amount) {
+    this.inventory.items.forEach(item => {
+        if(item.name === gun.name){
+            item.addAmmo(amount);
+        }
+    });
+  }
+} 

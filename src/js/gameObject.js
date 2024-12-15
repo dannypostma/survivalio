@@ -39,7 +39,6 @@ class GameObject {
   }
 
   destroy() {
-    console.log('Destroying object');
     this.gameState.removeObject(this);   
   }
 }

@@ -1,5 +1,5 @@
 import { Bullet } from '../bullet';
-
+import { Sprite2D } from '../sprite2d';
 class Gun {
   constructor(player, gameState) {
     this.player = player;
@@ -8,43 +8,19 @@ class Gun {
     this.lastFireTime = 0;
     this.isMouseDown = false;
     this.damageMultiplier = 1;
-    
-    this.bindEvents();
-  }
-
-  bindEvents() {
-    // window.addEventListener('click', dw(e) => this.handleSingleShot(e));
-    // window.addEventListener('mousedown', () => this.handleMouseDown());
-    // window.addEventListener('mouseup', () => this.handleMouseUp());
-    // Add Spacebutton as shooting key
-    window.addEventListener('keydown', (e) => {
-      if (e.key === ' ') {
-        this.handleMouseDown()
-      }
-    }); 
-
-    window.addEventListener('keyup', (e) => {
-      if (e.key === ' ') {
-        this.handleMouseUp()
-      }
-    });
-    // Start the continuous firing loop
+    this.sprite = new Sprite2D(0, 0, 18, 18, 'guns/revolver.png');
+    this.ammo = Infinity;    
     this.startFiringLoop();
+    this.name = 'Gun'
   }
 
-  handleMouseDown() {
-    this.isMouseDown = true;
-  }
+  shoot() {
 
-  handleMouseUp() {
-    this.isMouseDown = false;
-  }
+    if(this.ammo <= 0){
+      this.player.inventory.selectSlot(0);
+      return;
+    }
 
-  handleSingleShot(e) {
-    this.shoot(e);
-  }
-
-  shoot(e) {
     const mouseX = window.mouseX || 0;
     const mouseY = window.mouseY || 0;
 
@@ -72,6 +48,7 @@ class Gun {
 
       // Play gunshot sound using sound manager
       this.gameState.soundManager.playGunshot();
+      this.ammo--;
     }
   }
 
@@ -90,6 +67,10 @@ class Gun {
 
     // Start the loop
     checkFiring();
+  }
+
+  addAmmo(amount) {
+    this.ammo += amount;
   }
 }
 

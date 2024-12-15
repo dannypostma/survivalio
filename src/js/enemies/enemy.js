@@ -3,11 +3,13 @@ import { CollisionBox } from '../collisionBox.js';
 import { Area2D } from '../area2D.js';
 import { Bullet } from '../bullet.js';
 import { DamageHandler } from '../damageHandler.js';
+import { FastAmmo } from '../item/FastAmmo.js';
+import { ShotgunAmmo } from '../item/ShotgunAmmo.js';
 
 class Enemy extends GameObject {
   constructor(x, y, size, gameState) {
     super(x, y, size);
-    this.speed = 2;
+    this.speed = 1.5;
     this.gameState = gameState;
     this.collisionBox = new CollisionBox(this, [1]);
     this.hurtBox = new Area2D(this, [3], [2], this.size, this.size);
@@ -28,7 +30,6 @@ class Enemy extends GameObject {
     this.hurtBox.onEnter((obj) => {
       if (obj instanceof Bullet) {
         this.gameState.soundManager.playHit();
-        console.log(obj.getDamage());
         this.damageHandler.takeDamage(obj.getDamage());
         this.gameState.removeBullet(obj);
         // Add little push back velocity from bullet
@@ -104,10 +105,17 @@ class Enemy extends GameObject {
     // Draw the enemy with flash effect
     ctx.fillStyle = this.damageHandler.isHit ? this.hitColor : this.normalColor;
     super.draw(ctx);
-    this.hurtBox.draw(ctx);
+    // this.hurtBox.draw(ctx);
   }
 
   spawnItem() {
+    const randomChange = Math.random();
+    if(randomChange < 0.25 && randomChange > 0.1) {
+      new FastAmmo(this.position.x, this.position.y, this.gameState);
+    }
+    if(randomChange < 0.07) {
+      new ShotgunAmmo(this.position.x, this.position.y, this.gameState);
+    }
     // Implement coin dropped
   }
 

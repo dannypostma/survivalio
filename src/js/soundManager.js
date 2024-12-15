@@ -72,6 +72,14 @@ class SoundManager {
       ]
     };
 
+    this.gunOutOfAmmoPreset = {
+      tempo: 400,  // Faster tempo for a snappier sound
+      notes: [
+        { pitch: 'C2', duration: 'thirtySecond' },  // Changed name to pitch
+        { pitch: 'B1', duration: 'thirtySecond' }   // Changed name to pitch
+      ]
+    };
+
   }
 
   playSound(preset) {
@@ -94,6 +102,8 @@ class SoundManager {
     conductor.setTempo(preset.tempo);
 
     const instrument = conductor.createInstrument('square');
+
+    if(!preset.notes) return;
     
     preset.notes.forEach(note => {
       instrument.note(note.duration, note.pitch);
@@ -138,6 +148,10 @@ class SoundManager {
 
   playStartGame() {
     this.playSound(this.startGamePreset);
+  }
+
+  playGunOutOfAmmo() {
+    this.playSound(this.gunOutOfAmmoPreset);
   }
 }
 

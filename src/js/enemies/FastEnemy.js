@@ -9,7 +9,7 @@ import { Enemy } from './enemy.js';
 export class FastEnemy extends Enemy {
   constructor(x, y, gameState) {
     super(x, y, 20, gameState);
-    this.maxSpeed = 3;
+    this.maxSpeed = 2.5;
     this.health = 20;
     this.normalColor = 'blue';
     // this.gameState = gameState;

@@ -3,30 +3,59 @@ import { StartEnemy } from './enemies/StartEnemy.js';
 import { FastEnemy } from './enemies/FastEnemy.js';
 import { ChonkyEnemy } from './enemies/ChonkyEnemy.js';
 import { ExplodingEnemy } from './enemies/ExplodingEnemy.js';
+
 class EnemySpawner {
   constructor(canvas) {
     this.canvas = canvas;
-    this.spawnInterval = 1000; // 2 seconds
-    this.lastSpawnTime = 0;
+    this.baseSpawnInterval = 1.0; // Spawn interval in seconds
+    this.currentSpawnTimer = 0;
+    this.maxEnemies = 10; // Starting enemy limit
+    this.enemyLimitIncreaseTimer = 0;
+    this.enemyLimitIncreaseInterval = 3; // Increase limit every 10 seconds
 
     this.enemyTypesAndSpawnChance = {
-        'StartEnemy': {spawnChance: 0.8, enemy: StartEnemy},
-        'FastEnemy': {spawnChance: 0.1, enemy: FastEnemy},
-        'ChonkyEnemy': {spawnChance: 0.05, enemy: ChonkyEnemy},
-        'ExplodingEnemy': {spawnChance: 0.05, enemy: ExplodingEnemy}
+        'StartEnemy': {
+            spawnChance: 0.8, 
+            enemy: StartEnemy,
+            unlockThreshold: 0  // Available from start
+        },
+        'FastEnemy': {
+            spawnChance: 0.1, 
+            enemy: FastEnemy,
+            unlockThreshold: 15  // Unlocks when maxEnemies >= 15
+        },
+        'ChonkyEnemy': {
+            spawnChance: 0.05, 
+            enemy: ChonkyEnemy,
+            unlockThreshold: 25  // Unlocks when maxEnemies >= 25
+        },
+        'ExplodingEnemy': {
+            spawnChance: 0.05, 
+            enemy: ExplodingEnemy,
+            unlockThreshold: 35  // Unlocks when maxEnemies >= 35
+        }
     }
   }
 
-  update(gameState) {
-    const currentTime = Date.now();
-    
-    if (currentTime - this.lastSpawnTime > this.spawnInterval) {
+  update(gameState, dt) {
+
+    this.currentSpawnTimer += dt;
+    this.enemyLimitIncreaseTimer += dt;
+
+    // Increase enemy limit every 10 seconds
+    if (this.enemyLimitIncreaseTimer >= this.enemyLimitIncreaseInterval) {
+      this.maxEnemies += 1;
+      this.enemyLimitIncreaseTimer = 0;
+    }
+
+    // Only spawn if we haven't reached the enemy limit
+    if (this.currentSpawnTimer >= this.baseSpawnInterval && gameState.enemies.length < this.maxEnemies) {
       const spawnPoint = this.getRandomSpawnPoint();
       const enemy = this.getEnemyToSpawn(spawnPoint, gameState);
       
       gameState.enemies.push(enemy);
-      this.lastSpawnTime = currentTime;
-      this.spawnInterval = this.spawnInterval * 0.99; // Gradually increase spawn rate
+      this.currentSpawnTimer = 0;
+      this.baseSpawnInterval *= 0.99; // Gradually increase spawn rate
     }
 
     gameState.enemies.forEach(enemy => enemy.update(gameState));
@@ -35,9 +64,15 @@ class EnemySpawner {
   getEnemyToSpawn(spawnPoint, gameState) {
     const randomNumber = Math.random();
     let cumulativeProbability = 0;
-
-    for (const [enemyType, data] of Object.entries(this.enemyTypesAndSpawnChance)) {
-      cumulativeProbability += data.spawnChance;
+    let availableEnemies = Object.entries(this.enemyTypesAndSpawnChance)
+      .filter(([_, data]) => this.maxEnemies >= data.unlockThreshold);
+    
+    // Normalize probabilities for available enemies
+    const totalProbability = availableEnemies.reduce((sum, [_, data]) => sum + data.spawnChance, 0);
+    
+    for (const [enemyType, data] of availableEnemies) {
+      const normalizedProbability = data.spawnChance / totalProbability;
+      cumulativeProbability += normalizedProbability;
       
       if (randomNumber <= cumulativeProbability) {
         return new data.enemy(spawnPoint.x, spawnPoint.y, gameState);
