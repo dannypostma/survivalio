@@ -7,8 +7,8 @@ class Heart extends Item {
 
   collect() {
     this.gameState?.player?.gainHealth(10);
-    console.log('Heart collected');
     super.collect();
+    this.gameState.soundManager.playHeartPickup();
   }
 
   draw(ctx) {

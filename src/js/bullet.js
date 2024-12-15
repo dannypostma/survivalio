@@ -2,7 +2,7 @@ import { Area2D } from './area2D.js';
 
 
 class Bullet {
-  constructor(x, y, angle, speed = 10, gameState) {
+  constructor(x, y, angle, speed = 10, gameState, gunDamageMultiplier = 1) {
     this.position = { x, y };
     this.angle = angle;
     this.maxSpeed = speed;
@@ -15,9 +15,14 @@ class Bullet {
     this.damage = 10;
     this.gameState = gameState;
     this.knockbackStrength = 0.5;
+    this.gunDamageMultiplier = gunDamageMultiplier;
     
     // Bullet is in layer 2 and can collide with layer 3 (hurtboxes)
     this.area = new Area2D(this, [2], [3]);
+  }
+
+  getDamage() {
+    return this.damage * this.gunDamageMultiplier;
   }
 
   update() {

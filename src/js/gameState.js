@@ -15,6 +15,7 @@ export class GameState {
         this.player = null;
         this.isGameOver = false;
         this.soundManager = new SoundManager();
+        this.soundManager.playStartGame();
     }
 
     getAllObjects() {
@@ -83,6 +84,7 @@ export class GameState {
     }
 
     handleGameOver() {
+        this.soundManager.playGameOver();
         this.isGameOver = true;
         const gameOverScreen = document.getElementById('endScreen');
         gameOverScreen.classList.remove('hidden');
@@ -90,12 +92,15 @@ export class GameState {
         // Write score to local storage
         // If score is higher than current high score, update high score
         const highScore = localStorage.getItem('highScore');
+        const highScoreElement = document.getElementById('highScore');
+
         if(this.score > highScore) {
+            highScoreElement.textContent = this.score;
             localStorage.setItem('highScore', this.score);
+        }else{
+            highScoreElement.textContent = highScore;
         }
 
-        const highScoreElement = document.getElementById('highScore');
-        highScoreElement.textContent = highScore;
     }
 
     setPlayer(player) {

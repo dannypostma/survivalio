@@ -15,7 +15,7 @@ class StartEnemy extends Enemy {
 
   die() {
     super.die();
-    // this.spawnItem();w
+    this.spawnItem();
   }
 
 

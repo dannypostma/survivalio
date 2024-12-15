@@ -1,16 +1,17 @@
 import { GameObject } from './gameObject.js';
-import { Gun } from './gun.js';
+import { Gun } from './guns/gun.js';
 import { CollisionBox } from './collisionBox.js';
 import { Area2D } from './area2D.js';
 import { Enemy } from './enemies/enemy.js';
 import { DamageHandler } from './damageHandler.js';
 import { Item } from './item/Item.js';
+import { FastGun } from './guns/FastGun.js';
 
 class Player extends GameObject {
   constructor(x, y, gameState) {
     super(x, y);
     this.gameState = gameState;
-    this.gun = new Gun(this, gameState);
+    this.gun = new FastGun(this, gameState);
     this.keys = {
       w: false,
       s: false,
@@ -145,7 +146,10 @@ class Player extends GameObject {
     }
   }
 
-  takeDamage(){
+  takeDamage(){    
+      if(!this.damageHandler.isOnCooldown()){
+          this.gameState.soundManager.playPlayerDamaged();
+      }
     this.touchingEnemies.forEach(enemy => {
       this.damageHandler.takeDamage(enemy.damage);
       this.updateHealthUI();

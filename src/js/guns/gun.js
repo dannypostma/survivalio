@@ -1,4 +1,4 @@
-import { Bullet } from './bullet.js';
+import { Bullet } from '../bullet';
 
 class Gun {
   constructor(player, gameState) {
@@ -7,6 +7,7 @@ class Gun {
     this.fireRate = 250; // milliseconds between shots
     this.lastFireTime = 0;
     this.isMouseDown = false;
+    this.damageMultiplier = 1;
     
     this.bindEvents();
   }
@@ -60,7 +61,10 @@ class Gun {
       const bullet = new Bullet(
         playerPos.x,
         playerPos.y,
-        angle
+        angle,
+        10,
+        this.gameState,
+        this.damageMultiplier
       );
       
       this.gameState.bullets.push(bullet);
@@ -88,11 +92,5 @@ class Gun {
     checkFiring();
   }
 }
-
-// Track mouse position globally
-window.addEventListener('mousemove', (e) => {
-  window.mouseX = e.clientX;
-  window.mouseY = e.clientY;
-});
 
 export { Gun };

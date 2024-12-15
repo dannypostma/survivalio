@@ -28,7 +28,8 @@ class Enemy extends GameObject {
     this.hurtBox.onEnter((obj) => {
       if (obj instanceof Bullet) {
         this.gameState.soundManager.playHit();
-        this.damageHandler.takeDamage(obj.damage);
+        console.log(obj.getDamage());
+        this.damageHandler.takeDamage(obj.getDamage());
         this.gameState.removeBullet(obj);
         // Add little push back velocity from bullet
         this.velocity.x = -obj.position.x * obj.knockbackStrength;

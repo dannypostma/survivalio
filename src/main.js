@@ -29,3 +29,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
 }); 
 
+// Track mouse position globally
+window.addEventListener('mousemove', (e) => {
+    window.mouseX = e.clientX;
+    window.mouseY = e.clientY;
+  });
+

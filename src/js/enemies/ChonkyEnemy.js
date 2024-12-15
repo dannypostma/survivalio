@@ -6,6 +6,7 @@ export class ChonkyEnemy extends Enemy {
     super(x, y, 60, gameState);
     this.maxSpeed = 0.5;
     this.health = 100;
+    this.damage = 20;
     this.normalColor = 'pink';
   }
 
