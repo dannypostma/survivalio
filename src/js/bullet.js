@@ -1,15 +1,23 @@
+import { Area2D } from './area2D.js';
+
+
 class Bullet {
-  constructor(x, y, angle, speed = 10) {
+  constructor(x, y, angle, speed = 10, gameState) {
     this.position = { x, y };
     this.angle = angle;
     this.maxSpeed = speed;
     this.acceleration = 0.5;
     this.velocity = {
-      x: Math.cos(angle) * 2, // Start slower
+      x: Math.cos(angle) * 2,
       y: Math.sin(angle) * 2
     };
     this.size = 5;
     this.damage = 10;
+    this.gameState = gameState;
+    this.knockbackStrength = 0.5;
+    
+    // Bullet is in layer 2 and can collide with layer 3 (hurtboxes)
+    this.area = new Area2D(this, [2], [3]);
   }
 
   update() {
@@ -24,6 +32,9 @@ class Bullet {
     // Update position based on velocity
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
+
+    // Check for collisions
+    this.area.checkOverlap();
   }
 
   draw(ctx) {
@@ -44,6 +55,8 @@ class Bullet {
     ctx.beginPath();
     ctx.arc(this.position.x, this.position.y, this.size, 0, Math.PI * 2);
     ctx.fill();
+
+    this.area.draw(ctx);
   }
 
   isOffscreen(canvas) {

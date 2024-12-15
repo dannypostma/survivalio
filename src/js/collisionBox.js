@@ -45,7 +45,7 @@ class CollisionBox {
 
         return {
             horizontal: horizontalCollision,
-            vertical: verticalCollision
+            vertical: verticalCollision,
         };
     }
 

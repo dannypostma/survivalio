@@ -4,6 +4,9 @@ class GameObject {
     this.size = size;
     this.speed = 5;
     this.collisionLayers = [];
+    this.weight = 100;
+    this.strength = 100;
+    this.name = 'GameObject';
   }
 
   getPosition() {
@@ -33,6 +36,11 @@ class GameObject {
       this.size, 
       this.size
     );
+  }
+
+  destroy() {
+    console.log('Destroying object');
+    this.gameState.removeObject(this);   
   }
 }
 

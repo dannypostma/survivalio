@@ -17,12 +17,8 @@ Naming Conventions
 Javascript Usage
 - Use vanilla JavaScript for all code, not Typescript;
 
-Syntax and Formatting
-- Use the "function" keyword for pure functions to benefit from hoisting and clarity.
-
-UI and Styling
-- Use TailwindCSS for components and styling.
-- Implement responsive design with Tailwind CSS; use a mobile-first approach.
+Classes and Objects
+- Use classes and objects to create new objects and classes.
 
 Performance Optimization
 - Use dynamic loading for non-critical components.
